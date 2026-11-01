@@ -5,16 +5,19 @@ import com.juniverse.collections.map.MapDemo;
 import com.juniverse.collections.queue.QueueDemo;
 import com.juniverse.collections.set.SetDemo;
 
+import java.util.logging.Logger;
 /**
  * Guía práctica de colecciones de Java: qué estructura elegir y por qué, con ejemplos y mediciones.
  */
 public final class Main {
+    private static final Logger LOGGER = AppLogger.get(Main.class);
+
 
     private Main() {
     }
 
     private static void title(String text) {
-        System.out.println("\n=========== " + text + " ===========");
+        LOGGER.info("\n=========== " + text + " ===========");
     }
 
     /**
@@ -34,6 +37,6 @@ public final class Main {
         MapDemo.run();
         title("COLAS Y PILAS: ArrayDeque, PriorityQueue, BlockingQueue");
         QueueDemo.run();
-        System.out.println("\nNota: los tiempos son orientativos (calentamiento simple); para medir en serio usa JMH.");
+        LOGGER.info("\nNota: los tiempos son orientativos (calentamiento simple); para medir en serio usa JMH.");
     }
 }

@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import java.util.logging.Logger;
+import com.juniverse.collections.AppLogger;
 /**
  * Conjuntos (sin elementos repetidos).
  *
@@ -19,32 +21,34 @@ import java.util.TreeSet;
  * </ul>
  */
 public final class SetDemo {
+    private static final Logger LOGGER = AppLogger.get(SetDemo.class);
 
-    private enum Day { LUN, MAR, MIE, JUE, VIE, SAB, DOM }
+
+    private enum Day { MON, MAR, MIE, THU, FRI, SAT, DOM }
 
     private SetDemo() {
     }
 
     /** Ejecuta la demostración. */
     public static void run() {
-        List<String> datos = List.of("pera", "manzana", "uva", "manzana", "kiwi", "pera", "banano");
-        System.out.println("Entrada:       " + datos);
-        System.out.println("HashSet:       " + new HashSet<>(datos) + "   (orden no garantizado)");
-        System.out.println("LinkedHashSet: " + new LinkedHashSet<>(datos) + "   (orden de inserción)");
-        TreeSet<String> arbol = new TreeSet<>(datos);
-        System.out.println("TreeSet:       " + arbol + "   (ordenado)");
-        System.out.println("  primero=" + arbol.first() + ", último=" + arbol.last()
-                + ", menor >= 'l' -> " + arbol.ceiling("l") + ", subconjunto [k, p) -> " + arbol.subSet("k", "p"));
+        List<String> data = List.of("pera", "manzana", "uva", "manzana", "kiwi", "pera", "banano");
+        LOGGER.info("Entrada:       " + data);
+        LOGGER.info("HashSet:       " + new HashSet<>(data) + "   (orden no garantizado)");
+        LOGGER.info("LinkedHashSet: " + new LinkedHashSet<>(data) + "   (orden de inserción)");
+        TreeSet<String> tree = new TreeSet<>(data);
+        LOGGER.info("TreeSet:       " + tree + "   (ordenado)");
+        LOGGER.info("  primero=" + tree.first() + ", último=" + tree.last()
+                + ", menor >= 'l' -> " + tree.ceiling("l") + ", subconjunto [k, p) -> " + tree.subSet("k", "p"));
 
-        Set<Day> laborales = EnumSet.range(Day.LUN, Day.VIE);
-        System.out.println("EnumSet laborales: " + laborales + ", fin de semana: " + EnumSet.complementOf(EnumSet.copyOf(laborales)));
+        Set<Day> workdays = EnumSet.range(Day.MON, Day.FRI);
+        LOGGER.info("EnumSet laborales: " + workdays + ", fin de semana: " + EnumSet.complementOf(EnumSet.copyOf(workdays)));
 
         int n = 200_000;
-        System.out.println("Insertar " + n + " enteros y consultar contains:");
+        LOGGER.info("Insertar " + n + " enteros y consultar contains:");
         Bench.row("add + contains", "HashSet", Bench.ms(() -> fill(new HashSet<>(), n)));
         Bench.row("add + contains", "LinkedHashSet", Bench.ms(() -> fill(new LinkedHashSet<>(), n)));
         Bench.row("add + contains", "TreeSet", Bench.ms(() -> fill(new TreeSet<>(), n)));
-        System.out.println("Regla: HashSet por defecto; LinkedHashSet si importa el orden; TreeSet si necesitas orden o rangos.");
+        LOGGER.info("Regla: HashSet por defecto; LinkedHashSet si importa el orden; TreeSet si necesitas orden o rangos.");
     }
 
     private static void fill(Set<Integer> set, int n) {
@@ -58,7 +62,7 @@ public final class SetDemo {
             }
         }
         if (hits < 0) {
-            System.out.println(hits);
+            LOGGER.info(String.valueOf(hits));
         }
     }
 }

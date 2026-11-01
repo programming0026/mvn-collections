@@ -10,6 +10,8 @@ import java.util.Stack;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import java.util.logging.Logger;
+import com.juniverse.collections.AppLogger;
 /**
  * Colas y pilas.
  *
@@ -20,6 +22,8 @@ import java.util.concurrent.BlockingQueue;
  * </ul>
  */
 public final class QueueDemo {
+    private static final Logger LOGGER = AppLogger.get(QueueDemo.class);
+
 
     private record Task(String name, int priority) {
     }
@@ -33,47 +37,47 @@ public final class QueueDemo {
      * @throws InterruptedException si se interrumpe la espera del consumidor
      */
     public static void run() throws InterruptedException {
-        Deque<String> pila = new ArrayDeque<>();
-        pila.push("uno");
-        pila.push("dos");
-        pila.push("tres");
-        System.out.println("Pila (LIFO) con ArrayDeque, pop -> " + pila.pop() + ", " + pila.pop());
+        Deque<String> stack = new ArrayDeque<>();
+        stack.push("uno");
+        stack.push("dos");
+        stack.push("tres");
+        LOGGER.info("Pila (LIFO) con ArrayDeque, pop -> " + stack.pop() + ", " + stack.pop());
 
-        Queue<String> cola = new ArrayDeque<>();
-        cola.offer("primero");
-        cola.offer("segundo");
-        System.out.println("Cola (FIFO) con ArrayDeque, poll -> " + cola.poll() + ", " + cola.poll());
+        Queue<String> queue = new ArrayDeque<>();
+        queue.offer("primero");
+        queue.offer("segundo");
+        LOGGER.info("Cola (FIFO) con ArrayDeque, poll -> " + queue.poll() + ", " + queue.poll());
 
-        PriorityQueue<Task> tareas = new PriorityQueue<>((a, b) -> Integer.compare(a.priority(), b.priority()));
-        tareas.add(new Task("enviar reporte", 3));
-        tareas.add(new Task("corregir error crítico", 1));
-        tareas.add(new Task("actualizar docs", 5));
-        StringBuilder orden = new StringBuilder();
-        while (!tareas.isEmpty()) {
-            orden.append(tareas.poll().name()).append(" | ");
+        PriorityQueue<Task> tasks = new PriorityQueue<>((a, b) -> Integer.compare(a.priority(), b.priority()));
+        tasks.add(new Task("enviar reporte", 3));
+        tasks.add(new Task("corregir error crítico", 1));
+        tasks.add(new Task("actualizar docs", 5));
+        StringBuilder order = new StringBuilder();
+        while (!tasks.isEmpty()) {
+            order.append(tasks.poll().name()).append(" | ");
         }
-        System.out.println("PriorityQueue (menor número = más urgente): " + orden);
+        LOGGER.info("PriorityQueue (menor número = más urgente): " + order);
 
-        BlockingQueue<Integer> buzon = new ArrayBlockingQueue<>(2);
-        Thread productor = Thread.ofVirtual().start(() -> {
+        BlockingQueue<Integer> mailbox = new ArrayBlockingQueue<>(2);
+        Thread producer = Thread.ofVirtual().start(() -> {
             try {
                 for (int i = 1; i <= 4; i++) {
-                    buzon.put(i); // se bloquea si la cola está llena
+                    mailbox.put(i); // se bloquea si la cola está llena
                 }
-                buzon.put(-1);
+                mailbox.put(-1);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         });
-        StringBuilder recibidos = new StringBuilder();
-        for (int v = buzon.take(); v != -1; v = buzon.take()) {
-            recibidos.append(v).append(' ');
+        StringBuilder received = new StringBuilder();
+        for (int v = mailbox.take(); v != -1; v = mailbox.take()) {
+            received.append(v).append(' ');
         }
-        productor.join();
-        System.out.println("BlockingQueue productor-consumidor recibió: " + recibidos.toString().trim());
+        producer.join();
+        LOGGER.info("BlockingQueue productor-consumidor recibió: " + received.toString().trim());
 
         int n = 300_000;
-        System.out.println("Usar como pila: " + n + " push y pop:");
+        LOGGER.info("Usar como pila: " + n + " push y pop:");
         Bench.row("push + pop", "ArrayDeque", Bench.ms(() -> stack(new ArrayDeque<>(), n)));
         Bench.row("push + pop", "LinkedList", Bench.ms(() -> stack(new LinkedList<>(), n)));
         Bench.row("push + pop", "Stack (obsoleta)", Bench.ms(() -> {
@@ -85,7 +89,7 @@ public final class QueueDemo {
                 s.pop();
             }
         }));
-        System.out.println("Regla: ArrayDeque para pilas y colas; PriorityQueue si importa la prioridad; nunca Stack.");
+        LOGGER.info("Regla: ArrayDeque para pilas y colas; PriorityQueue si importa la prioridad; nunca Stack.");
     }
 
     private static void stack(Deque<Integer> deque, int n) {

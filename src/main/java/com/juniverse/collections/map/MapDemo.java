@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+import java.util.logging.Logger;
+import com.juniverse.collections.AppLogger;
 /**
  * Mapas (pares clave-valor).
  *
@@ -20,8 +22,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * </ul>
  */
 public final class MapDemo {
+    private static final Logger LOGGER = AppLogger.get(MapDemo.class);
 
-    private enum Level { BAJO, MEDIO, ALTO }
+
+    private enum Level { LOW, MEDIUM, HIGH }
 
     private MapDemo() {
     }
@@ -49,16 +53,16 @@ public final class MapDemo {
 
     /** Ejecuta la demostración. */
     public static void run() {
-        Map<String, Integer> notas = Map.of("Ana", 9, "Luis", 7);
-        System.out.println("Map.of es inmutable: " + new TreeMap<>(notas));
+        Map<String, Integer> grades = Map.of("Ana", 9, "Luis", 7);
+        LOGGER.info("Map.of es inmutable: " + new TreeMap<>(grades));
 
-        TreeMap<Integer, String> escala = new TreeMap<>();
-        escala.put(0, "Reprobado");
-        escala.put(60, "Suficiente");
-        escala.put(80, "Notable");
-        escala.put(90, "Excelente");
-        for (int puntos : new int[]{45, 72, 95}) {
-            System.out.println("TreeMap.floorEntry(" + puntos + ") -> " + escala.floorEntry(puntos).getValue());
+        TreeMap<Integer, String> scale = new TreeMap<>();
+        scale.put(0, "Reprobado");
+        scale.put(60, "Suficiente");
+        scale.put(80, "Notable");
+        scale.put(90, "Excelente");
+        for (int points : new int[]{45, 72, 95}) {
+            LOGGER.info("TreeMap.floorEntry(" + points + ") -> " + scale.floorEntry(points).getValue());
         }
 
         LruCache<String, String> cache = new LruCache<>(2);
@@ -66,27 +70,27 @@ public final class MapDemo {
         cache.put("b", "2");
         cache.get("a"); // "a" pasa a ser la más reciente
         cache.put("c", "3"); // expulsa "b"
-        System.out.println("Caché LRU (capacidad 2): " + cache.keySet());
+        LOGGER.info("Caché LRU (capacidad 2): " + cache.keySet());
 
-        Map<Level, Integer> conteo = new EnumMap<>(Level.class);
-        conteo.merge(Level.ALTO, 1, Integer::sum);
-        conteo.merge(Level.BAJO, 1, Integer::sum);
-        conteo.merge(Level.ALTO, 1, Integer::sum);
-        System.out.println("EnumMap (siempre en el orden del enum): " + conteo);
+        Map<Level, Integer> count = new EnumMap<>(Level.class);
+        count.merge(Level.HIGH, 1, Integer::sum);
+        count.merge(Level.LOW, 1, Integer::sum);
+        count.merge(Level.HIGH, 1, Integer::sum);
+        LOGGER.info("EnumMap (siempre en el orden del enum): " + count);
 
-        Map<String, Integer> palabras = new ConcurrentHashMap<>();
+        Map<String, Integer> words = new ConcurrentHashMap<>();
         for (String p : "a b a c b a".split(" ")) {
-            palabras.merge(p, 1, Integer::sum); // atómico
+            words.merge(p, 1, Integer::sum); // atómico
         }
-        System.out.println("ConcurrentHashMap + merge: " + new TreeMap<>(palabras));
+        LOGGER.info("ConcurrentHashMap + merge: " + new TreeMap<>(words));
 
         int n = 200_000;
-        System.out.println("put + get de " + n + " claves enteras:");
+        LOGGER.info("put + get de " + n + " claves enteras:");
         Bench.row("put + get", "HashMap", Bench.ms(() -> fill(new HashMap<>(), n)));
         Bench.row("put + get", "LinkedHashMap", Bench.ms(() -> fill(new LinkedHashMap<>(), n)));
         Bench.row("put + get", "TreeMap", Bench.ms(() -> fill(new TreeMap<>(), n)));
         Bench.row("put + get", "ConcurrentHashMap", Bench.ms(() -> fill(new ConcurrentHashMap<>(), n)));
-        System.out.println("Regla: HashMap por defecto; TreeMap si necesitas orden o rangos; LinkedHashMap para orden o LRU.");
+        LOGGER.info("Regla: HashMap por defecto; TreeMap si necesitas orden o rangos; LinkedHashMap para orden o LRU.");
     }
 
     private static void fill(Map<Integer, Integer> map, int n) {
@@ -101,7 +105,7 @@ public final class MapDemo {
             }
         }
         if (sum < 0) {
-            System.out.println(sum);
+            LOGGER.info(String.valueOf(sum));
         }
     }
 }

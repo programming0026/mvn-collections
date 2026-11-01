@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import java.util.logging.Logger;
+import com.juniverse.collections.AppLogger;
 /**
  * Listas: {@code ArrayList} vs {@code LinkedList} (y las variantes inmutable y concurrente).
  *
@@ -19,6 +21,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * </ul>
  */
 public final class ListDemo {
+    private static final Logger LOGGER = AppLogger.get(ListDemo.class);
+
 
     private static final int N = 30_000;
 
@@ -34,30 +38,30 @@ public final class ListDemo {
             linked.add(i);
         }
 
-        System.out.println("Acceso aleatorio por índice (get):");
+        LOGGER.info("Acceso aleatorio por índice (get):");
         Bench.row("get(i) en " + N + " elementos", "ArrayList", Bench.ms(() -> sumByIndex(array)));
         Bench.row("get(i) en " + N + " elementos", "LinkedList", Bench.ms(() -> sumByIndex(linked)));
 
-        System.out.println("Insertar siempre al inicio (add(0, x)):");
+        LOGGER.info("Insertar siempre al inicio (add(0, x)):");
         Bench.row("add(0, x) x " + N, "ArrayList", Bench.ms(() -> insertAtStart(new ArrayList<>())));
         Bench.row("add(0, x) x " + N, "LinkedList", Bench.ms(() -> insertAtStart(new LinkedList<>())));
 
-        System.out.println("Borrar elementos mientras se recorre (ListIterator.remove):");
+        LOGGER.info("Borrar elementos mientras se recorre (ListIterator.remove):");
         Bench.row("borrar los pares", "ArrayList", Bench.ms(() -> removeEvens(new ArrayList<>(array))));
         Bench.row("borrar los pares", "LinkedList", Bench.ms(() -> removeEvens(new LinkedList<>(linked))));
 
-        List<String> fija = List.of("A", "B", "C");
+        List<String> fixed = List.of("A", "B", "C");
         try {
-            fija.add("D");
+            fixed.add("D");
         } catch (UnsupportedOperationException e) {
-            System.out.println("List.of es inmutable: add lanza " + e.getClass().getSimpleName());
+            LOGGER.info("List.of es inmutable: add lanza " + e.getClass().getSimpleName());
         }
-        List<String> concurrente = new CopyOnWriteArrayList<>(fija);
-        for (String s : concurrente) {
-            concurrente.add(s.toLowerCase()); // no lanza ConcurrentModificationException
+        List<String> concurrent = new CopyOnWriteArrayList<>(fixed);
+        for (String s : concurrent) {
+            concurrent.add(s.toLowerCase()); // no lanza ConcurrentModificationException
         }
-        System.out.println("CopyOnWriteArrayList permite modificar mientras se recorre: " + concurrente);
-        System.out.println("Regla: usa ArrayList salvo que tengas un motivo medido para otra cosa.");
+        LOGGER.info("CopyOnWriteArrayList permite modificar mientras se recorre: " + concurrent);
+        LOGGER.info("Regla: usa ArrayList salvo que tengas un motivo medido para otra cosa.");
     }
 
     private static long sumByIndex(List<Integer> list) {

@@ -1,10 +1,15 @@
 package com.juniverse.collections.util;
 
+
+import java.util.logging.Logger;
+import com.juniverse.collections.AppLogger;
 /**
  * Utilidad mínima para comparar tiempos. Es una medición didáctica (con calentamiento), no un benchmark riguroso:
  * para resultados fiables usa JMH.
  */
 public final class Bench {
+    private static final Logger LOGGER = AppLogger.get(Bench.class);
+
 
     private Bench() {
     }
@@ -34,6 +39,6 @@ public final class Bench {
      * @param ms tiempo en milisegundos
      */
     public static void row(String label, String name, double ms) {
-        System.out.printf("  %-34s %-18s %9.2f ms%n", label, name, ms);
+        LOGGER.info(String.format("  %-34s %-18s %9.2f ms", label, name, ms));
     }
 }
